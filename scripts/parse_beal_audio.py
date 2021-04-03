@@ -15,6 +15,10 @@ def beal_element_mappings():
         {"name": "av_type", "type": "xpath", "xpath": "./fmpro:AVType"},
         {"name": "reel_size", "type": "xpath", "xpath": "./fmpro:ReelSize/fmpro:DATA"},
         {"name": "tape_speed", "type": "xpath", "xpath": "./fmpro:TapeSpeed/fmpro:DATA"},
+        {"name": "item_color", "type": "xpath", "xpath": "./fmpro:ItemColor"},
+        {"name": "item_time", "type": "xpath", "xpath": "./fmpro:ItemTime"},
+        {"name": "item_sound", "type": "xpath", "xpath": "./fmpro:ItemSound"},
+        {"name": "fidelity", "type": "xpath", "xpath": "./fmpro:Fidleity/fmpro:DATA"},
     ]
     return element_mappings
 
@@ -30,14 +34,24 @@ def clean_beal_audio(metadata):
             item_metadata["media_type"] = "audio"
         else:
             item_metadata["media_type"] = "video"
-        parenthical_bits = [item_metadata["reel_size"], item_metadata["tape_speed"]]
-        parenthical_bits = [bit for bit in parenthical_bits if bit]
-        if parenthical_bits:
-            item_metadata["source"] = "{} ({})".format(item_metadata["av_type"], ", ".join(parenthical_bits))
+
+        source_parenthical_bits = [item_metadata["reel_size"], item_metadata["tape_speed"]]
+        source_parenthical_bits = [bit for bit in source_parenthical_bits if bit]
+        if source_parenthical_bits:
+            item_metadata["source"] = "{} ({})".format(item_metadata["av_type"], ", ".join(source_parenthical_bits))
         else:
             item_metadata["source"] = item_metadata["av_type"]
+        source_additional_bits = [item_metadata["item_color"], item_metadata["item_sound"], item_metadata["fidelity"], item_metadata["item_time"]]
+        source_additional_bits = [bit for bit in source_additional_bits if bit]
+        if source_additional_bits:
+            item_metadata["source"] = item_metadata["source"] + ", {}".format(", ".join(source_additional_bits))
+
         del item_metadata["av_type"]
         del item_metadata["reel_size"]
         del item_metadata["tape_speed"]
+        del item_metadata["item_color"]
+        del item_metadata["item_time"]
+        del item_metadata["item_sound"]
+        del item_metadata["fidelity"]
         items[item_identifier] = item_metadata
     return items
